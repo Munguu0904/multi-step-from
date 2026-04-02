@@ -6,10 +6,17 @@ import * as z from "zod";
 import { ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
+// Валидацийн схем
 const stepOneSchema = z.object({
   firstName: z.string().min(1, "Нэрээ оруулна уу"),
   lastName: z.string().min(1, "Овгоо оруулна уу"),
-  username: z.string().min(3, "Хэрэглэгчийн нэр дор хаяж 3 тэмдэгт"),
+  username: z
+    .string()
+    .min(3, "Хэрэглэгчийн нэр дор хаяж 3 тэмдэгт")
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Зөвхөн англи үсэг, тоо болон доогуур зураас ашиглах боломжтой",
+    ), // Тусгай тэмдэгт болон Монгол үсэг хориглох
 });
 
 export const StepOne = ({ onNext, initialData }: any) => {
@@ -38,6 +45,7 @@ export const StepOne = ({ onNext, initialData }: any) => {
         onSubmit={handleSubmit(onNext)}
         className="flex flex-col gap-5 text-left"
       >
+        {/* First Name */}
         <div className="flex flex-col gap-2">
           <label className="text-[12px] font-bold uppercase text-gray-500">
             First name *
@@ -46,7 +54,14 @@ export const StepOne = ({ onNext, initialData }: any) => {
             {...register("firstName")}
             className={`w-full p-3 rounded-xl border outline-none ${errors.firstName ? "border-red-500" : "border-gray-200 focus:border-black"}`}
           />
+          {errors.firstName && (
+            <span className="text-red-500 text-[11px] ml-1">
+              {String(errors.firstName.message)}
+            </span>
+          )}
         </div>
+
+        {/* Last Name */}
         <div className="flex flex-col gap-2">
           <label className="text-[12px] font-bold uppercase text-gray-500">
             Last name *
@@ -55,16 +70,34 @@ export const StepOne = ({ onNext, initialData }: any) => {
             {...register("lastName")}
             className={`w-full p-3 rounded-xl border outline-none ${errors.lastName ? "border-red-500" : "border-gray-200 focus:border-black"}`}
           />
+          {errors.lastName && (
+            <span className="text-red-500 text-[11px] ml-1">
+              {String(errors.lastName.message)}
+            </span>
+          )}
         </div>
+
+        {/* Username */}
         <div className="flex flex-col gap-2">
           <label className="text-[12px] font-bold uppercase text-gray-500">
             Username *
           </label>
           <input
             {...register("username")}
+            onInput={(e: React.FormEvent<HTMLInputElement>) => {
+              const target = e.target as HTMLInputElement;
+              // Сул зай болон тусгай тэмдэгт шууд устгах логик
+              target.value = target.value.replace(/[^a-zA-Z0-9_]/g, "");
+            }}
             className={`w-full p-3 rounded-xl border outline-none ${errors.username ? "border-red-500" : "border-gray-200 focus:border-black"}`}
           />
+          {errors.username && (
+            <span className="text-red-500 text-[11px] ml-1">
+              {String(errors.username.message)}
+            </span>
+          )}
         </div>
+
         <button
           type="submit"
           disabled={!isValid}

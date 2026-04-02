@@ -9,6 +9,7 @@ export default function Home() {
   const [formData, setFormData] = useState<any>({});
   const [isMounted, setIsMounted] = useState(false);
 
+  // 1. Ачаалахад localStorage-оос дата унших
   useEffect(() => {
     const savedData = localStorage.getItem("multiStepFormData");
     const savedStep = localStorage.getItem("currentStep");
@@ -17,8 +18,16 @@ export default function Home() {
     setIsMounted(true);
   }, []);
 
+  // 2. Дата хадгалах болон цэвэрлэх логик
   useEffect(() => {
-    if (isMounted) {
+    if (!isMounted) return;
+
+    if (currentStep === 4) {
+      // Хэрэв 4-р алхам (Амжилттай) болсон бол шууд устгана
+      localStorage.removeItem("multiStepFormData");
+      localStorage.removeItem("currentStep");
+    } else {
+      // Бусад үед хадгалсаар байна
       localStorage.setItem("multiStepFormData", JSON.stringify(formData));
       localStorage.setItem("currentStep", currentStep.toString());
     }
@@ -52,18 +61,20 @@ export default function Home() {
           initialData={formData}
         />
       )}
+
       {currentStep === 4 && (
         <div className="bg-white p-10 rounded-[32px] shadow-sm text-center">
           <h2 className="text-2xl font-bold">You're All Set! 🔥</h2>
           <p className="text-gray-500 mt-2">Амжилттай бүртгэгдлээ.</p>
           <button
             onClick={() => {
-              localStorage.clear();
-              window.location.reload();
+              // State-ийг гараар цэвэрлэж эхний алхам руу буцна
+              setFormData({});
+              setCurrentStep(1);
             }}
             className="mt-6 text-blue-500 underline"
           >
-            Дахин эхлэх
+            Шинэ бүртгэл эхлэх
           </button>
         </div>
       )}
