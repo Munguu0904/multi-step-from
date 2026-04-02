@@ -1,124 +1,72 @@
 "use client";
-
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import { StepOne } from "./components/StepOne";
 import { StepTwo } from "./components/StepTwo";
 import { StepThree } from "./components/StepThree";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState<any>({});
+  const [isMounted, setIsMounted] = useState(false);
 
-  const [formData, setFormData] = useState({
-    // Step 1 data
-    firstName: "",
-    lastName: "",
-    username: "",
-    // Step 2 data
-    email: "",
-    phoneNumber: "",
-    password: "",
-    // Step 3 data
-    dateOfBirth: "",
-    profileImage: null as File | string | null,
-  });
+  useEffect(() => {
+    const savedData = localStorage.getItem("multiStepFormData");
+    const savedStep = localStorage.getItem("currentStep");
+    if (savedData) setFormData(JSON.parse(savedData));
+    if (savedStep) setCurrentStep(Number(savedStep));
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem("multiStepFormData", JSON.stringify(formData));
+      localStorage.setItem("currentStep", currentStep.toString());
+    }
+  }, [formData, currentStep, isMounted]);
 
   const handleNext = (newData: any) => {
-    setFormData((prev) => ({ ...prev, ...newData }));
+    setFormData((prev: any) => ({ ...prev, ...newData }));
     setCurrentStep((prev) => prev + 1);
   };
 
-  const handleBack = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
+  const handleBack = () => setCurrentStep((prev) => prev - 1);
+
+  if (!isMounted) return null;
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#F3F4F6] p-4 font-sans">
-      <AnimatePresence mode="wait">
-        {currentStep === 1 && (
-          <motion.div
-            key="step1"
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -20, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+    <main className="min-h-screen flex items-center justify-center bg-[#F4F4F5]">
+      {currentStep === 1 && (
+        <StepOne onNext={handleNext} initialData={formData} />
+      )}
+      {currentStep === 2 && (
+        <StepTwo
+          onNext={handleNext}
+          onBack={handleBack}
+          initialData={formData}
+        />
+      )}
+      {currentStep === 3 && (
+        <StepThree
+          onNext={handleNext}
+          onBack={handleBack}
+          initialData={formData}
+        />
+      )}
+      {currentStep === 4 && (
+        <div className="bg-white p-10 rounded-[32px] shadow-sm text-center">
+          <h2 className="text-2xl font-bold">You're All Set! 🔥</h2>
+          <p className="text-gray-500 mt-2">Амжилттай бүртгэгдлээ.</p>
+          <button
+            onClick={() => {
+              localStorage.clear();
+              window.location.reload();
+            }}
+            className="mt-6 text-blue-500 underline"
           >
-            <StepOne onNext={handleNext} initialData={formData} />
-          </motion.div>
-        )}
-
-        {currentStep === 2 && (
-          <motion.div
-            key="step2"
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -20, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <StepTwo
-              onNext={handleNext}
-              onBack={handleBack}
-              initialData={formData}
-            />
-          </motion.div>
-        )}
-
-        {currentStep === 3 && (
-          <motion.div
-            key="step3"
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -20, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <StepThree
-              onNext={handleNext}
-              onBack={handleBack}
-              initialData={formData}
-            />
-          </motion.div>
-        )}
-
-        {currentStep === 4 && (
-          <motion.div
-            key="success"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="w-[480px] bg-white rounded-[32px] p-20 shadow-sm border border-gray-50 flex flex-col items-center text-center"
-          >
-            <div className="bg-white border border-gray-100 p-3 rounded-2xl mb-4 w-fit flex items-center justify-center shadow-sm">
-              <span className="font-bold text-[22px] px-1 text-black">
-                {"< >"}
-              </span>
-            </div>
-            <h1 className="text-[26px] font-bold text-[#18181B] mb-2">
-              You're All Set 🔥
-            </h1>
-            <p className="text-gray-400 text-[14px] font-medium leading-relaxed">
-              We have received your submission. Thank you!
-            </p>
-            <button
-              onClick={() => {
-                setFormData({
-                  firstName: "",
-                  lastName: "",
-                  username: "",
-                  email: "",
-                  phoneNumber: "",
-                  password: "",
-                  dateOfBirth: "",
-                  profileImage: null,
-                });
-                setCurrentStep(1);
-              }}
-              className="mt-8 text-blue-600 font-bold hover:underline transition-all"
-            >
-              Start Over
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            Дахин эхлэх
+          </button>
+        </div>
+      )}
     </main>
   );
 }
