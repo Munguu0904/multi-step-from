@@ -1,25 +1,33 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Image as ImageIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface StepThreeProps {
   onBack: () => void;
   onNext: (data: any) => void;
+  initialData: any;
 }
 
-export const StepThree = ({ onBack, onNext }: StepThreeProps) => {
+export const StepThree = ({ onBack, onNext, initialData }: StepThreeProps) => {
   const [birthDate, setBirthDate] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ date?: string; image?: string }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (initialData?.dateOfBirth) setBirthDate(initialData.dateOfBirth);
+    if (initialData?.profileImage) {
+      const img = initialData.profileImage;
+      setProfileImage(typeof img === "string" ? img : URL.createObjectURL(img));
+    }
+  }, [initialData]);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Зургийн preview үүсгэх
       const imageUrl = URL.createObjectURL(file);
       setProfileImage(imageUrl);
       setErrors((prev) => ({ ...prev, image: "" }));
@@ -57,7 +65,7 @@ export const StepThree = ({ onBack, onNext }: StepThreeProps) => {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
     } else {
-      onNext({ birthDate, profileImage });
+      onNext({ dateOfBirth: birthDate, profileImage });
     }
   };
 
@@ -80,7 +88,7 @@ export const StepThree = ({ onBack, onNext }: StepThreeProps) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[12px] font-bold uppercase text-gray-700">
+        <label className="text-[12px] font-bold uppercase text-gray-700 text-left">
           Date of birth <span className="text-red-500">*</span>
         </label>
         <input
@@ -98,12 +106,14 @@ export const StepThree = ({ onBack, onNext }: StepThreeProps) => {
           }}
         />
         {errors.date && (
-          <p className="text-red-500 text-[11px] font-medium">{errors.date}</p>
+          <p className="text-red-500 text-[11px] font-medium text-left">
+            {errors.date}
+          </p>
         )}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[12px] font-bold uppercase text-gray-700">
+        <label className="text-[12px] font-bold uppercase text-gray-700 text-left">
           Profile image <span className="text-red-500">*</span>
         </label>
 
