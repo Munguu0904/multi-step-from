@@ -66,16 +66,6 @@ export default function Home() {
         <div className="bg-white p-10 rounded-[32px] shadow-sm text-center">
           <h2 className="text-2xl font-bold">You're All Set! 🔥</h2>
           <p className="text-gray-500 mt-2">Амжилттай бүртгэгдлээ.</p>
-          <button
-            onClick={() => {
-              // State-ийг гараар цэвэрлэж эхний алхам руу буцна
-              setFormData({});
-              setCurrentStep(1);
-            }}
-            className="mt-6 text-blue-500 underline"
-          >
-            Шинэ бүртгэл эхлэх
-          </button>
         </div>
       )}
     </main>
